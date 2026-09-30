@@ -4,10 +4,9 @@
   (un par onglet : `app.js` patientes et suivi du travail, `examens.js`, `grossesses.js`,
   `enfants.js`, `praticiens.js`, et `export.js` pour l'export Excel). Bibliothèques chargées
   depuis un CDN.
-- Le site n'est **pas encore sur Git** : le dossier n'a pas de `.git`, c'est pourquoi
-  https://sps-g34-parto.professeurpetitchat.com/ renvoie 404. Avant de mettre en ligne :
-  `git init`, `git remote add origin <dépôt public portant le nom du dossier>`, `git push`
-  (le workflow GitHub Actions est déjà en place côté dépôt, voir CLAUDE.md parent).
+- Le dépôt GitHub public est https://github.com/tppointe-byte/partogramme (créé le
+  2026-09-30). Le site est en ligne sur https://sps-g34-parto.professeurpetitchat.com/ :
+  chaque `git push` dans `main` publie le site (workflow GitHub Actions).
 - Pour prévisualiser : `node serveur-local.js` (à la racine du dossier Projets) sert le dossier
   sur http://127.0.0.1:8642/. Python n'est pas installé et PowerShell bloque `npx` (stratégie
   d'exécution), donc passer par Node directement.
