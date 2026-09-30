@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Partogramme</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/inter@5/400.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/inter@5/500.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/inter@5/600.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/inter@5/700.css">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="entete">
+    <div class="marque">
+      <div class="logo">P</div>
+      <div>
+        <h1>Partogramme</h1>
+        <p>Salle de naissance · suivi du travail</p>
+      </div>
+    </div>
+    <button id="btn-export" class="bouton contour" type="button" disabled>↓ Exporter en Excel</button>
+  </header>
+
+  <nav class="onglets">
+    <button type="button" class="onglet actif" data-page="suivi">Suivi du travail</button>
+    <button type="button" class="onglet" data-page="patientes">Patientes</button>
+    <button type="button" class="onglet" data-page="grossesses">Grossesses</button>
+    <button type="button" class="onglet" data-page="enfants">Enfants</button>
+    <button type="button" class="onglet" data-page="praticiens">Praticiens</button>
+  </nav>
+
+  <main class="contenu">
+    <div class="page" id="page-suivi">
+      <div class="suivi">
+        <aside class="colonne">
+          <section class="carte">
+            <h2>Patiente</h2>
+            <label>Patiente
+              <select id="suivi-patiente"></select>
+            </label>
+            <label>Grossesse
+              <select id="suivi-grossesse"></select>
+            </label>
+            <div id="suivi-pastilles" class="pastilles"></div>
+            <p id="message-suivi" class="message" role="status"></p>
+          </section>
+
+          <section class="carte" id="carte-equipe" hidden>
+            <h2>Équipe référente</h2>
+            <ul id="liste-equipe" class="equipe"></ul>
+          </section>
+        </aside>
+
+        <div class="principal" id="suivi-contenu" hidden>
+          <div class="kpis">
+            <div class="kpi"><span>Dilatation actuelle</span><strong id="kpi-dilatation">—</strong><em id="kpi-dilatation-sub"></em></div>
+            <div class="kpi"><span>Durée du travail</span><strong id="kpi-duree">—</strong><em id="kpi-duree-sub"></em></div>
+            <div class="kpi"><span>Présentation</span><strong id="kpi-hauteur">—</strong><em id="kpi-hauteur-sub"></em></div>
+            <div class="kpi"><span>Dernier examen</span><strong id="kpi-dernier">—</strong><em id="kpi-dernier-sub"></em></div>
+          </div>
+
+          <section class="carte" id="carte-courbe">
+            <div class="carte-titre">
+              <h2>Courbe de dilatation</h2>
+              <span class="legende"><i></i> Dilatation (cm) <span class="legende-aide">Survolez un point pour le détail</span></span>
+            </div>
+            <div class="graphique"><canvas id="courbe" aria-label="Courbe de dilatation en fonction du temps" role="img"></canvas></div>
+          </section>
+
+          <section class="carte">
+            <div class="carte-titre">
+              <h2>Examens</h2>
+              <button id="btn-nouvel-examen" class="bouton" type="button">+ Nouvel examen</button>
+            </div>
+            <table>
+              <thead>
+                <tr>
+                  <th>Date et heure</th>
+                  <th>Dilatation</th>
+                  <th>Hauteur</th>
+                  <th>Orientation</th>
+                  <th>Remarque</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody id="liste-examens"></tbody>
+            </table>
+            <p id="message-examens" class="message" role="status"></p>
+
+            <form id="formulaire-examen" class="saisie" autocomplete="off">
+              <p id="titre-formulaire-examen" class="saisie-titre"></p>
+              <div class="saisie-ligne">
+                <label>Date et heure
+                  <input type="datetime-local" id="e_date" required>
+                </label>
+                <label>Dilatation (cm)
+                  <input type="number" id="e_dilatation" min="0" max="10" step="1" required>
+                </label>
+                <label>Hauteur
+                  <input type="number" id="e_hauteur" min="-5" max="5" step="1">
+                </label>
+                <label>Orientation
+                  <select id="e_orientation"></select>
+                </label>
+                <label class="souple">Remarque
+                  <input type="text" id="e_remarque" placeholder="Ex. : rupture de la poche des eaux">
+                </label>
+                <div class="saisie-boutons">
+                  <button type="button" class="bouton secondaire" id="btn-annuler-examen" hidden>Annuler</button>
+                  <button type="submit" class="bouton" id="btn-enregistrer-examen">Enregistrer</button>
+                </div>
+              </div>
+              <p id="message-formulaire-examen" class="message" role="status"></p>
+            </form>
+          </section>
+        </div>
+      </div>
+    </div>
+
+    <div class="page" id="page-patientes" hidden>
+      <section class="carte">
+        <div class="carte-titre">
+          <h2>Patientes</h2>
+          <button id="btn-nouvelle" class="bouton" type="button">+ Nouvelle patiente</button>
+        </div>
+        <p id="message-liste" class="message" role="status"></p>
+        <table>
+          <thead>
+            <tr>
+              <th>Nom</th>
+              <th>Nom marital</th>
+              <th>Prénom</th>
+              <th>Groupe</th>
+              <th>Née le</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="liste"></tbody>
+        </table>
+      </section>
+
+      <section class="carte" id="carte-formulaire" hidden>
+        <div class="carte-titre">
+          <h2 id="titre-formulaire">Nouvelle patiente</h2>
+        </div>
+        <form id="formulaire" autocomplete="off">
+          <div class="grille">
+            <label>Nom
+              <input type="text" id="nom" required>
+            </label>
+            <label>Nom marital
+              <input type="text" id="nom_marital">
+            </label>
+            <label>Prénom
+              <input type="text" id="prenom" required>
+            </label>
+            <label>Groupe sanguin
+              <select id="gs_rh">
+                <option value="">— non renseigné —</option>
+                <option>A+</option>
+                <option>A-</option>
+                <option>B+</option>
+                <option>B-</option>
+                <option>O+</option>
+                <option>O-</option>
+                <option>AB+</option>
+                <option>AB-</option>
+                <option value="inconnu">inconnu</option>
+              </select>
+            </label>
+            <label>Date de naissance
+              <input type="date" id="date_naissance">
+            </label>
+          </div>
+          <p id="message-formulaire" class="message" role="status"></p>
+          <div class="actions">
+            <button type="submit" class="bouton" id="btn-enregistrer">Enregistrer</button>
+            <button type="button" class="bouton secondaire" id="btn-annuler">Annuler</button>
+          </div>
+        </form>
+      </section>
+    </div>
+
+    <div class="page" id="page-grossesses" hidden>
+      <section class="carte">
+        <div class="carte-titre">
+          <h2>Grossesses</h2>
+          <button id="btn-nouvelle-grossesse" class="bouton" type="button">+ Nouvelle grossesse</button>
+        </div>
+        <label class="choix-patiente">Patiente
+          <select id="choix-patiente"></select>
+        </label>
+        <p id="message-grossesses" class="message" role="status"></p>
+        <table>
+          <thead>
+            <tr>
+              <th>Début</th>
+              <th>Parité</th>
+              <th>VIH</th>
+              <th>Toxo</th>
+              <th>Durée travail</th>
+              <th>Durée expulsion</th>
+              <th>Équipe</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="liste-grossesses"></tbody>
+        </table>
+      </section>
+
+      <section class="carte" id="carte-formulaire-grossesse" hidden>
+        <div class="carte-titre">
+          <h2 id="titre-formulaire-grossesse">Nouvelle grossesse</h2>
+        </div>
+        <form id="formulaire-grossesse" autocomplete="off">
+          <div class="grille">
+            <label>Début de grossesse
+              <input type="date" id="g_debut" required>
+            </label>
+            <label>Parité
+              <input type="number" id="g_parite" min="0" max="30" step="1">
+            </label>
+            <label>VIH
+              <select id="g_hiv">
+                <option value="">— non renseigné —</option>
+                <option value="false">négatif</option>
+                <option value="true">positif</option>
+              </select>
+            </label>
+            <label>Toxoplasmose
+              <select id="g_toxo">
+                <option value="">— non renseigné —</option>
+                <option value="false">négatif</option>
+                <option value="true">positif</option>
+              </select>
+            </label>
+            <label>Durée du travail (h:min)
+              <input type="time" id="g_duree_travail">
+            </label>
+            <label>Durée de l'expulsion (h:min)
+              <input type="time" id="g_duree_expulsion">
+            </label>
+          </div>
+          <h3 class="sous-titre">Équipe référente</h3>
+          <div class="grille">
+            <label>Sage-femme
+              <select id="g_id_sage_femme"></select>
+            </label>
+            <label>Obstétricien
+              <select id="g_id_obstetricien"></select>
+            </label>
+            <label>Anesthésiste
+              <select id="g_id_anesthesiste"></select>
+            </label>
+            <label>Pédiatre
+              <select id="g_id_pediatre"></select>
+            </label>
+          </div>
+          <p id="message-formulaire-grossesse" class="message" role="status"></p>
+          <div class="actions">
+            <button type="submit" class="bouton" id="btn-enregistrer-grossesse">Enregistrer</button>
+            <button type="button" class="bouton secondaire" id="btn-annuler-grossesse">Annuler</button>
+          </div>
+        </form>
+      </section>
+    </div>
+
+    <div class="page" id="page-enfants" hidden>
+      <section class="carte">
+        <div class="carte-titre">
+          <h2>Enfants</h2>
+          <button id="btn-nouvel-enfant" class="bouton" type="button">+ Nouvel enfant</button>
+        </div>
+        <div class="choix-ligne">
+          <label class="choix-patiente">Patiente
+            <select id="en_patiente"></select>
+          </label>
+          <label class="choix-patiente">Grossesse
+            <select id="en_grossesse"></select>
+          </label>
+        </div>
+        <p id="message-enfants" class="message" role="status"></p>
+        <table>
+          <thead>
+            <tr>
+              <th>Prénom</th>
+              <th>Sexe</th>
+              <th>Naissance</th>
+              <th>Poids</th>
+              <th>Taille</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="liste-enfants"></tbody>
+        </table>
+      </section>
+
+      <section class="carte" id="carte-formulaire-enfant" hidden>
+        <div class="carte-titre">
+          <h2 id="titre-formulaire-enfant">Nouvel enfant</h2>
+        </div>
+        <form id="formulaire-enfant" autocomplete="off">
+          <div class="grille">
+            <label>Prénom
+              <input type="text" id="en_prenom">
+            </label>
+            <label>Sexe
+              <select id="en_sexe">
+                <option value="">— non renseigné —</option>
+                <option>Garçon</option>
+                <option>Fille</option>
+              </select>
+            </label>
+            <label>Date et heure de naissance
+              <input type="datetime-local" id="en_naissance">
+            </label>
+            <label>Poids (kg)
+              <input type="number" id="en_poids" min="0" max="10" step="0.001" placeholder="Ex. : 3.250">
+            </label>
+            <label>Taille (cm)
+              <input type="number" id="en_taille" min="0" max="80" step="1">
+            </label>
+          </div>
+          <p id="message-formulaire-enfant" class="message" role="status"></p>
+          <div class="actions">
+            <button type="submit" class="bouton" id="btn-enregistrer-enfant">Enregistrer</button>
+            <button type="button" class="bouton secondaire" id="btn-annuler-enfant">Annuler</button>
+          </div>
+        </form>
+      </section>
+    </div>
+
+    <div class="page" id="page-praticiens" hidden>
+      <section class="carte">
+        <div class="carte-titre">
+          <h2>Praticiens</h2>
+          <button id="btn-nouveau-praticien" class="bouton" type="button">+ Nouveau praticien</button>
+        </div>
+        <p id="message-praticiens" class="message" role="status"></p>
+        <table>
+          <thead>
+            <tr>
+              <th>Nom</th>
+              <th>Prénom</th>
+              <th>Spécialité</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="liste-praticiens"></tbody>
+        </table>
+      </section>
+
+      <section class="carte" id="carte-formulaire-praticien" hidden>
+        <div class="carte-titre">
+          <h2 id="titre-formulaire-praticien">Nouveau praticien</h2>
+        </div>
+        <form id="formulaire-praticien" autocomplete="off">
+          <div class="grille">
+            <label>Nom
+              <input type="text" id="pr_nom" required>
+            </label>
+            <label>Prénom
+              <input type="text" id="pr_prenom" required>
+            </label>
+            <label>Spécialité
+              <select id="pr_specialite" required></select>
+            </label>
+          </div>
+          <p id="message-formulaire-praticien" class="message" role="status"></p>
+          <div class="actions">
+            <button type="submit" class="bouton" id="btn-enregistrer-praticien">Enregistrer</button>
+            <button type="button" class="bouton secondaire" id="btn-annuler-praticien">Annuler</button>
+          </div>
+        </form>
+      </section>
+    </div>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+  <script src="https://cdn.jsdelivr.net/npm/exceljs@4.4.0/dist/exceljs.min.js"></script>
+  <script src="config.js"></script>
+  <script src="app.js"></script>
+  <script src="grossesses.js"></script>
+  <script src="examens.js"></script>
+  <script src="enfants.js"></script>
+  <script src="praticiens.js"></script>
+  <script src="export.js"></script>
+</body>
+</html>
